@@ -73,4 +73,11 @@ public class RoomResource {
         DataStore.ROOMS.remove(roomId);
         return Response.noContent().build();
     }
+
+    @GET
+    @Path("/test/crash")
+    public Response triggerCrash() {
+        // Specifically built to demonstrate the HTTP-500 GlobalExceptionMapper in the video presentation
+        throw new RuntimeException("Simulated catastrophic failure to prove stack traces are hidden!");
+    }
 }
