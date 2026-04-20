@@ -11,6 +11,9 @@ import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.UriInfo;
+import java.net.URI;
 
 // Note: No @Path at class level because it's a Sub-Resource Locator
 @Produces(MediaType.APPLICATION_JSON)
@@ -30,7 +33,7 @@ public class SensorReadingResource {
     }
 
     @POST
-    public Response addReading(SensorReading reading) {
+    public Response addReading(SensorReading reading, @Context UriInfo uriInfo) {
         Sensor parentSensor = DataStore.SENSORS.get(sensorId);
         if (parentSensor == null) {
             return Response.status(Response.Status.NOT_FOUND).entity("Parent sensor not found.").build();
@@ -54,6 +57,7 @@ public class SensorReadingResource {
         // Map parent sensor's current value
         parentSensor.setCurrentValue(reading.getValue());
 
-        return Response.status(Response.Status.CREATED).entity(reading).build();
+        URI location = uriInfo.getAbsolutePathBuilder().path(reading.getId()).build();
+        return Response.created(location).entity(reading).build();
     }
 }

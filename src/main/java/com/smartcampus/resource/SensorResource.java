@@ -12,6 +12,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.UriInfo;
+import java.net.URI;
 
 @Path("/sensors")
 @Produces(MediaType.APPLICATION_JSON)
@@ -32,7 +35,7 @@ public class SensorResource {
     }
 
     @POST
-    public Response createSensor(Sensor sensor) {
+    public Response createSensor(Sensor sensor, @Context UriInfo uriInfo) {
         // CRITICAL LOGIC: Verify roomId exists
         String targetRoomId = sensor.getRoomId();
         if (targetRoomId == null || !DataStore.ROOMS.containsKey(targetRoomId)) {
@@ -50,7 +53,8 @@ public class SensorResource {
         Room targetRoom = DataStore.ROOMS.get(targetRoomId);
         targetRoom.getSensorIds().add(sensor.getId());
 
-        return Response.status(Response.Status.CREATED).entity(sensor).build();
+        URI location = uriInfo.getAbsolutePathBuilder().path(sensor.getId()).build();
+        return Response.created(location).entity(sensor).build();
     }
 
     // Sub-Resource Locator Pattern

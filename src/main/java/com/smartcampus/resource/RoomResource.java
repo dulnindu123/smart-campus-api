@@ -10,6 +10,9 @@ import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.UriInfo;
+import java.net.URI;
 
 @Path("/rooms")
 @Produces(MediaType.APPLICATION_JSON)
@@ -23,7 +26,7 @@ public class RoomResource {
     }
 
     @POST
-    public Response createRoom(Room room) {
+    public Response createRoom(Room room, @Context UriInfo uriInfo) {
         if (room.getId() == null || room.getId().trim().isEmpty()) {
             room.setId(UUID.randomUUID().toString());
         }
@@ -39,7 +42,9 @@ public class RoomResource {
         }
 
         DataStore.ROOMS.put(room.getId(), room);
-        return Response.status(Response.Status.CREATED).entity(room).build();
+        
+        URI location = uriInfo.getAbsolutePathBuilder().path(room.getId()).build();
+        return Response.created(location).entity(room).build();
     }
 
     @GET
